@@ -1,0 +1,11 @@
+# Ignore data 
+./data_original_for_reference/
+./Results_original_for_reference/
+__pycache__/EpitopeDistance.cpython-311.pyc
+data/iedb.fasta.pdb
+data/iedb.fasta.pin
+data/iedb.fasta.pjs
+data/iedb.fasta.pot
+data/iedb.fasta.ptf
+data/iedb.fasta.pto
+data/iedb.fasta.pin

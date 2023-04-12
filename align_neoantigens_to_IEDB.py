@@ -184,13 +184,26 @@ if __name__ == "__main__":
     python align_neoantigens_to_IEDB.py
      
     '''
+    
+    # print current workign dir 
+    print(os.getcwd())
 
-    dir = os.path.join("data")
-    patient_dir = os.path.join("data", "Patient_data")
-    iedb_file = os.path.join("data", "iedb.fasta")
+    # dir = os.path.join("data")
+    # patient_dir = os.path.join("data", "Patient_data")
+    # iedb_file = os.path.join("data", "iedb.fasta")
+    
+    # Modify paths to results results section: 
+    dir = os.path.join("outputs", "neoantigen_quality") #"../../outputs/neoantigen_quality/"
+    patient_dir = os.path.join("outputs", "neoantigen_quality", "patient_json") #"../../outputs/neoantigen_quality/patient_json"
+    iedb_file = os.path.join("src", "scripts", "NeoantigenEditing", "data","iedb.fasta")
+    
 
-    if not os.path.exists(os.path.join("data", "IEDB_alignments")):
-        os.mkdir(os.path.join("data", "IEDB_alignments"))
+    # if not os.path.exists(os.path.join("data", "IEDB_alignments")):
+    #     os.mkdir(os.path.join("data", "IEDB_alignments"))
+    
+    # Change path to output directory
+    if not os.path.exists(os.path.join("outputs", "neoantigen_quality", "IEDB_alignments")):
+        os.mkdir(os.path.join("outputs", "neoantigen_quality", "IEDB_alignments"))
     # blosum62
 
     blosum62 = load_blosum62_mat()
@@ -199,9 +212,10 @@ if __name__ == "__main__":
     prepare_blastdb(iedb_file)
     epitopes = load_epitopes(iedb_file)
 
-    patientdirs = glob.glob(os.path.join(patient_dir, "*", "Primary"))
+    # patientdirs = glob.glob(os.path.join(patient_dir, "*", "Primary"))
     # file to extract neoantigen sequences for that patient
-    patientfiles = [glob.glob(os.path.join(pdir, "*.json"))[0] for pdir in patientdirs]
+    # patientfiles = [glob.glob(os.path.join(pdir, "*.json"))[0] for pdir in patientdirs]
+    patientfiles = glob.glob(os.path.join(patient_dir, "*.json"))
 
     for pfile in patientfiles:
         with open(pfile) as f:
@@ -227,5 +241,8 @@ if __name__ == "__main__":
         if len(aln_data):
             aln_data = pd.DataFrame(aln_data)
             aln_data.columns = ["Peptide_ID", "Peptide", "Epitope_ID", "Alignment_score"]
-            aln_data.to_csv(os.path.join("data", "IEDB_alignments", "iedb_alignments_" + patient + ".txt"), sep="\t",
+            # change write output: "../../outputs/neoantigen_quality/"
+            aln_data.to_csv(os.path.join("outputs", "neoantigen_quality", "IEDB_alignments", "iedb_alignments_" + patient + ".txt"), sep="\t",
                             index=False)
+            # aln_data.to_csv(os.path.join("data", "IEDB_alignments", "iedb_alignments_" + patient + ".txt"), sep="\t",
+            #                 index=False)

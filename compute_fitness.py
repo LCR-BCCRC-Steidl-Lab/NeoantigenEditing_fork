@@ -280,24 +280,32 @@ if __name__ == "__main__":
     k = 1
     w = 0.22402192838740312
 
-    dir = os.path.join("data")
-    patient_dir = os.path.join("data", "Patient_data")
-    iedn_aln_dir = os.path.join("data", "IEDB_alignments")
+    # dir = os.path.join("data")
+    # patient_dir = os.path.join("data", "Patient_data")
+    # iedn_aln_dir = os.path.join("data", "IEDB_alignments")
+    
+    # Edit paths for use: 
+    patient_dir = os.path.join("outputs", "neoantigen_quality")
+    iedn_aln_dir = os.path.join("outputs", "neoantigen_quality", "IEDB_alignments")
 
     epidist = EpitopeDistance()
 
-    patient_dirs = [x for x in glob.glob(os.path.join(patient_dir, "*")) if os.path.isdir(x)]
+    # patient_dirs = [x for x in glob.glob(os.path.join(patient_dir, "*")) if os.path.isdir(x)]
+    patient_dirs = [x for x in glob.glob(os.path.join(patient_dir, "patient_json")) if os.path.isdir(x)]
 #    samplefiles = glob.glob(os.path.join(patient_dir, "*", "*", "*.json"))
 #    samplefiles = [x for x in samplefiles if "_annotated.json" not in x]
     for pat_dir in patient_dirs:
-        sample_files1 = glob.glob(os.path.join(pat_dir, "Primary", "*.json"))
-        sample_files2 = glob.glob(os.path.join(pat_dir, "Recurrent", "*.json"))
-        sample_files1 = [x for x in sample_files1 if "_annotated.json" not in x]
-        sample_files2 = [x for x in sample_files2 if "_annotated.json" not in x]
-        norm = len(sample_files2)/2
-
-        sample_files = sample_files1 + sample_files2
+        #sample_files1 = glob.glob(os.path.join(pat_dir, "Primary", "*.json"))
+        #sample_files2 = glob.glob(os.path.join(pat_dir, "Recurrent", "*.json"))
+        #sample_files1 = [x for x in sample_files1 if "_annotated.json" not in x] # These are guards against grabbing _annotated.json files, which are the results of these.
+        #sample_files2 = [x for x in sample_files2 if "_annotated.json" not in x]
+        #norm = len(sample_files2)/2
+        
+        sample_files1 = glob.glob(os.path.join(pat_dir, "*.json"))
+        sample_files1 = [x for x in sample_files1 if "_annotated.json" not in x] # These are guards against grabbing _annotated.json files, which are the results of these.
+        sample_files = sample_files1 #+ sample_files2
         for sfile in sample_files:
+            print(sfile)
             with open(sfile) as f:
                 sjson = json.load(f)
             patient = sjson["patient"]
@@ -318,22 +326,25 @@ if __name__ == "__main__":
                 neo["quality"] = (w * neo["logC"] + (1 - w) * neo["logA"]) * neo["R"]
                 mut2neo[neo["mutation_id"]].append(neo)
 
-            mut2dg = mark_driver_gene_mutations(sjson)
-            mut2missense = mark_missense_mutations(sjson)
+            # Only map neoantigen qualities, donn't need others yet.
+            #mut2dg = mark_driver_gene_mutations(sjson)
+            #mut2missense = mark_missense_mutations(sjson)
             neo2qualities = map_neoantigen_qualities(sjson)
 
-            for tree in sjson["sample_trees"]:
-                fill_up_clone_mutations(tree, mut2missense)
-                fill_up_clone_neoantigens(tree, mut2neo)
-                set_immune_fitness(tree, neo2qualities)
-                set_driver_gene_fitness(tree, mut2dg)
+            # Currently, we only need the neoantigen qualities
+            # for tree in sjson["sample_trees"]:
+            #     fill_up_clone_mutations(tree, mut2missense)
+            #     fill_up_clone_neoantigens(tree, mut2neo)
+            #     set_immune_fitness(tree, neo2qualities)
+            #     set_driver_gene_fitness(tree, mut2dg)
 
-            neff = compute_effective_sample_size(sjson)
-            sjson["Effective_N"] = neff/norm
+            # neff = compute_effective_sample_size(sjson)
+            # sjson["Effective_N"] = neff/norm
 
-            for tree in sjson["sample_trees"]:
-                clean_data(tree)
+            # for tree in sjson["sample_trees"]:
+            #     clean_data(tree)
 
             ofile = sfile.replace(".json", "_annotated.json")
+            print("outfile is: ", ofile)
             with open(ofile, 'w') as of:
                 json.dump(sjson, of, indent=True)
